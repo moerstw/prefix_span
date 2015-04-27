@@ -111,7 +111,7 @@ import ca.pfv.spmf.algorithms.sequentialpatterns.prefixSpan_AGP.AlgoPrefixSpan_A
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spade_spam_AGP.idLists.creators.IdListCreator;
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spade_spam_AGP.idLists.creators.IdListCreator_FatBitmap;
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoCMSPAM;
-//import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoSPAM;
+import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoSPAM;
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoTKS;
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoVGEN;
 //import ca.pfv.spmf.algorithms.sequentialpatterns.spam.AlgoVMSP;
@@ -432,17 +432,17 @@ public class CommandProcessor {
 //
 //			// Print results
 //			algoSeqDim.printStatistics(contextMDDatabase.size());
-//		} else if ("SPAM".equals(algorithmName)) {
-//			AlgoSPAM algo = new AlgoSPAM();
-//			if (parameters.length >=2 && "".equals(parameters[1]) == false) {
-//				algo.setMaximumPatternLength(getParamAsInteger(parameters[1]));
-//			}
-//			if (parameters.length >=3 && "".equals(parameters[2]) == false) {
-//				algo.setMaxGap(getParamAsInteger(parameters[2]));
-//			}
-//			algo.runAlgorithm(inputFile, outputFile,
-//					getParamAsDouble(parameters[0]));
-//			algo.printStatistics();
+		} else if ("SPAM".equals(algorithmName)) {
+			AlgoSPAM algo = new AlgoSPAM();
+			if (parameters.length >=2 && "".equals(parameters[1]) == false) {
+				algo.setMaximumPatternLength(getParamAsInteger(parameters[1]));
+			}
+			if (parameters.length >=3 && "".equals(parameters[2]) == false) {
+				algo.setMaxGap(getParamAsInteger(parameters[2]));
+			}
+			algo.runAlgorithm(inputFile, outputFile,
+					getParamAsDouble(parameters[0]));
+			algo.printStatistics();
 //		} else if ("CM-SPAM".equals(algorithmName)) {
 //			AlgoCMSPAM algo = new AlgoCMSPAM();
 //			if (parameters.length >=2 && "".equals(parameters[1]) == false) {

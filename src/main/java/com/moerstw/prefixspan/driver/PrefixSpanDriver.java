@@ -28,6 +28,7 @@ package com.moerstw.prefixspan.driver;
 // import org.apache.hadoop.util.ProgramDriver;
 import dm.myprefixspan.test.MyPre;
 import ca.pfv.spmf.gui.SPMF;
+import com.moerstw.prefixspan.PrefixSpan;
 
 /**
  * A description of an example program based on its class and a 
@@ -47,7 +48,7 @@ public class PrefixSpanDriver {
       pgd.addClass("mypre", MyPre.class, 
                    "(4): file_name min_support(0~1) max_gap(-1) max_pattern_length(-1).");
       pgd.addClass("spmf", SPMF.class, 
-                   "(4+): run algoName input output 1)PrefixSpan minsup 2)PrefixSpan_AGP minsup");
+                   "(4+): run algoName input output 1)PrefixSpan 2)PrefixSpan_AGP 3)SPAM minsup");
       exitCode = pgd.run(argv);
     }
     catch(Throwable e){
