@@ -1,4 +1,6 @@
 package com.moerstw.prefixspan;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -11,10 +13,14 @@ public class ItemSet {
   /**
    * grater
    * so using NavigableSet
-   * 1. ConcurrentSkipListSet
-   * 2. TreeSet
-   * 3. List
+   * 1. ConcurrentSkipListSet(no slow than treeset)
+   * 2. TreeSet(red-black tree)
+   * 3. List(no search slow)
    */
+  NavigableSet<Item> itemset;
+  public ItemSet() {
+    itemset = new TreeSet<Item>();
+  }
 
 
 

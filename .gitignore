@@ -16,6 +16,7 @@ hs_err_pid*
 /dataset/*
 !/dataset/D5C3T3N26ascii.data
 !dataset/D5C3T3N26ascii.dataspmf
+!dataset/D5C3T3N26ascii.dataS
 !dataset/D5C3T3N26.data
 !dataset/data_mypre.txt
 target
