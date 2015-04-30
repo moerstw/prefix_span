@@ -7,7 +7,7 @@ public class ProjD1 {
   public List<Integer> pD;
   public int maxID;
   public List<Integer> pattern;
-  public int sup;
+  // public int sup;
   public int sItem;
   public int level;
   // public int iItem;
@@ -15,7 +15,7 @@ public class ProjD1 {
   public ProjD1 () {
     pD = new ArrayList<Integer>();
     pattern = new ArrayList<Integer>();
-    sup = 0;
+    // sup = 0;
     maxID = -1;
     level = 1;
     
@@ -23,7 +23,7 @@ public class ProjD1 {
   public ProjD1 (ProjD1 projDB) {
     pD = new ArrayList<Integer>();
     pattern = new ArrayList<Integer>(projDB.pattern);
-    sup = 0;
+    // sup = 0;
     maxID = -1;
     level = projDB.level + 1;
   }
@@ -49,12 +49,13 @@ public class ProjD1 {
   public static void recusiveProject (OD1 oD, ProjD1 pDB) {
     List<Integer> freItem = PScanOneFreItem(oD, pDB);
     ProjD1[] ppDB = PprojectDB(oD, pDB, freItem);
+    oD.proD += ppDB.length;
     for (int i = 0; i < ppDB.length; ++i) {
       // System.out.println("pseudo pro:");
       // ppDB[i].print();
       // System.out.println(ppDB[i].pattern.toString());
-      if (ppDB[i].sup >= oD.supC) 
-        ProjD1.recusiveProject(oD, ppDB[i]);
+      // if (ppDB[i].sup >= oD.supC) 
+      ProjD1.recusiveProject(oD, ppDB[i]);
     }
   }
 
@@ -98,7 +99,7 @@ public class ProjD1 {
             insertIndex.add(j);
             pd[j].maxID = id;
             pd[j].addI(af);
-            ++pd[j].sup;
+            // ++pd[j].sup;
           } else {
             pd[j].add(af);
           }
@@ -120,7 +121,7 @@ public class ProjD1 {
             insertIndex.add(j);
             pd[j].maxID = id;
             pd[j].addI(af);
-            ++pd[j].sup;
+            // ++pd[j].sup;
           } else {
             pd[j].add(af);
           }
@@ -135,17 +136,20 @@ public class ProjD1 {
   }
 
   public static List<Integer> PScanOneFreItem(OD1 oD, ProjD1 pDB) {
-    Arrays.fill(oD.iMax, 0);
     Arrays.fill(oD.sMax, 0);
+    Arrays.fill(oD.iMax, 0);
+    Arrays.fill(oD.sSup, 0);
+    Arrays.fill(oD.iSup, 0);
     Set<Integer> iset = new HashSet<Integer>();
     Set<Integer> sset = new HashSet<Integer>();
     List<Integer> proDB = pDB.pD;
     List<Integer> seq;
-    int inSeq, id, af;
+    int inSeq, id, af, last;
     boolean sstep;
     for (inSeq = 0; inSeq < proDB.size() - 1; ++inSeq) {
       id = proDB.get(inSeq++);
       seq = oD.oB.get(id);
+      last = seq.size() - 2;
       sstep = false;
       for (; proDB.get(inSeq) != -1; ++inSeq) {
         af = proDB.get(inSeq) + 1;
@@ -154,7 +158,11 @@ public class ProjD1 {
          * find before -1
          */
         for (;seq.get(af) >= 0; ++af) {
-          iset.add(seq.get(af));
+          if (af != last) {
+            iset.add(seq.get(af));
+          } else if (!iset.contains(seq.get(last))){
+            ++oD.iMax[seq.get(last)];
+          }
         } //end istep
         /**
          * s-step only do onece
@@ -164,13 +172,17 @@ public class ProjD1 {
         sstep = true;
         ++af;
         if (af != seq.size()) 
-          sset.addAll(seq.subList(af, seq.size() - 1));
+          sset.addAll(seq.subList(af, last));
         else
           continue;
         sset.remove(-1);
+        if (!sset.contains(seq.get(last))){
+          ++oD.sMax[seq.get(last)];
+        }
         if(!sset.isEmpty()) {
           for (Integer item : sset) {
             ++oD.sMax[item];
+            ++oD.sSup[item];
           }
           sset.clear();
         }
@@ -178,6 +190,7 @@ public class ProjD1 {
       if(!iset.isEmpty()) {
         for (Integer item : iset) {
           ++oD.iMax[item];
+          ++oD.iSup[item];
         }
         iset.clear();
       }
@@ -186,25 +199,28 @@ public class ProjD1 {
     int count = 0;
     for (int i = 0; i < oD.numbI; ++i) {
       if (oD.sMax[i] >= oD.supC) {
-        freIS.add(new Integer(i));
         ++count;
       }
+      if (oD.sSup[i] >= oD.supC) {
+        freIS.add(i);
+      }
     }
-    pDB.sItem = count; 
-    count = 0;
+    pDB.sItem = freIS.size(); 
     for (int i = 0; i < oD.numbI; ++i) {
       if (oD.iMax[i] >= oD.supC) {
-        freIS.add(new Integer(i));
         ++count;
+      }
+      if (oD.iSup[i] >= oD.supC) {
+        freIS.add(i);
       }
     }
     // pDB.iItem = count;
-    if (freIS.size() > 0) {
+    if (count > 0) {
       // oD.total += freIS.size();
       if(pDB.level + 1 > oD.level.size())
-        oD.level.add(freIS.size());
+        oD.level.add(count);
       else 
-        oD.level.set(pDB.level, oD.level.get(pDB.level) + freIS.size());
+        oD.level.set(pDB.level, oD.level.get(pDB.level) + count);
     
     }
     return freIS;

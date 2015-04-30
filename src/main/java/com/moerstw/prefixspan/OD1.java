@@ -7,18 +7,21 @@ import java.io.*;
  * originDB
  */
 public class OD1 {
-  int minSup;
   /**
    * ArrayList sequential memory acess faster =- for origin
    * LinkList random delete insert =- for psedo?
    * id trans itemset
    */
-  public List<List<Integer>> oB; 
+  public static List<List<Integer>> oB; 
   public static int supC;
   public static int numbI;
   public static int[] iMax;
   public static int[] sMax;
+  public static int[] iSup;
+  public static int[] sSup;
   public static List<Integer> level;
+  public boolean removeUnfre;
+  public static int proD;
   // public static int total;
   public OD1(){
 
@@ -34,7 +37,20 @@ public class OD1 {
     numbI = Integer.parseInt(args[2]);
     this.iMax = new int[numbI];
     this.sMax = new int[numbI];
+    this.iSup = new int[numbI];
+    this.sSup = new int[numbI];
     Read2(args[0]);
+    /**
+     * default is not remove
+     */
+    if (args.length > 3) {
+      removeUnfre = Integer.parseInt(args[3]) == 1 ? true : false;
+      // if (args.length > 4) {
+      //   args[4] write to file
+      // }
+
+    } else 
+      removeUnfre = false;
   
   }
   public int Read2(String args) throws IOException {
@@ -91,37 +107,89 @@ public class OD1 {
     }
     return oB.size();
   } // end of void read file
-
-  public ArrayList<Integer> ScanOneFreItem() {
-    // int[] coutedId = new int[this.numbI];
-    // int[] maxSup = new int[this.numbI];
+  public ArrayList<Integer> ScanRMOneFreItem() {
     Arrays.fill(this.sMax, 0);
-    // int[] notLast = new int[this.numbI];
-    // List<aList<Integer>> seq;
+    Arrays.fill(this.sSup, 0);
     Set<Integer> set = new HashSet<Integer>();
     for (List<Integer> seq : oB) {
-      //for (Integer item : seq) {
-        // if(item >= 0)
-        //  set.add(item);
-      // }
-      set.addAll(seq.subList(0, seq.size()-1));
+      int last = seq.size() - 2;
+      set.addAll(seq.subList(0, last));
       set.remove(-1);
+      if (!set.contains(seq.get(last))) {
+        /** 
+         * it would not to be project
+         */
+        ++this.sMax[seq.get(last)];
+      }
       if(!set.isEmpty()) {
         for (Integer item : set) {
           ++this.sMax[item];
+          ++this.sSup[item];
         }
         set.clear();
       }
     }
     ArrayList<Integer> freItem = new ArrayList<Integer>();
+    ArrayList<Integer> retainItem = new ArrayList<Integer>();
     for (int i = 0; i < this.numbI; ++i) {
       if (this.sMax[i] >= this.supC) {
+        retainItem.add(new Integer(i));
+      } // the answer;
+      if (this.sSup[i] >= this.supC) {
         freItem.add(new Integer(i));
       }
     }
-    if (freItem.size() > 0) {
+    if (retainItem.size() > 0) {
       // this.total += freItem.size();
-      this.level.add(freItem.size());
+      this.level.add(retainItem.size());
+    }
+    this.removeNotFre(retainItem);
+    return freItem;
+  }
+
+  public ArrayList<Integer> ScanOneFreItem() {
+    // int[] coutedId = new int[this.numbI];
+    // int[] maxSup = new int[this.numbI];
+    Arrays.fill(this.sMax, 0);
+    Arrays.fill(this.sSup, 0);
+    // int[] notLast = new int[this.numbI];
+    // List<aList<Integer>> seq;
+    Set<Integer> set = new HashSet<Integer>();
+    for (List<Integer> seq : oB) {
+      int last = seq.size() - 2;
+      //for (Integer item : seq) {
+        // if(item >= 0)
+        //  set.add(item);
+      // }
+      set.addAll(seq.subList(0, last));
+      set.remove(-1);
+      if (!set.contains(seq.get(last))) {
+        /** 
+         * it would not to be project
+         */
+        ++this.sMax[seq.get(last)];
+      }
+      if(!set.isEmpty()) {
+        for (Integer item : set) {
+          ++this.sMax[item];
+          ++this.sSup[item];
+        }
+        set.clear();
+      }
+    }
+    ArrayList<Integer> freItem = new ArrayList<Integer>();
+    int answer = 0;
+    for (int i = 0; i < this.numbI; ++i) {
+      if (this.sMax[i] >= this.supC) {
+        ++answer;
+      } // the answer;
+      if (this.sSup[i] >= this.supC) {
+        freItem.add(new Integer(i));
+      }
+    }
+    if (answer > 0) {
+      // this.total += freItem.size();
+      this.level.add(answer);
     }
     return freItem;
   }
@@ -159,12 +227,15 @@ public class OD1 {
     System.out.println("delete:" + cc);
   }
 
-  public ProjD1[] projectDB(List<Integer> freItem) {
-    int[] hashIndex = new int[this.numbI];
+  /**
+   * project not remove un frequence database
+   */
+  public ProjD1[] projectNoRMDB(List<Integer> freItem) {
+    Arrays.fill(this.sMax, -1);
     ProjD1[] pd = new ProjD1[freItem.size()];
     Set<Integer> list = new TreeSet<Integer>(freItem);
     for (int i = 0; i < freItem.size(); ++i) {
-      hashIndex[freItem.get(i)] = i;
+      sMax[freItem.get(i)] = i;
       pd[i] = new ProjD1();
       pd[i].appI(freItem.get(i));
     }
@@ -174,22 +245,63 @@ public class OD1 {
      */
     List<Integer> seq;
     List<Integer> insertIndex = new ArrayList<Integer>();
+    int j;
     for (int id = 0; id < oB.size(); ++id) {
       seq = oB.get(id); 
       for (int inSeq = 0; inSeq < seq.size() - 2; ++inSeq) {
         if (seq.get(inSeq) != -1) {
-          int j = hashIndex[seq.get(inSeq)];
+          j = this.sMax[seq.get(inSeq)];
+          if (j < 0) continue;
           if (pd[j].maxID < id) {
             insertIndex.add(j);
             pd[j].maxID = id;
             pd[j].addI(inSeq);
-            ++pd[j].sup;
+            // ++pd[j].sup;
           } else
             pd[j].add(inSeq);
         }
       }
-      for (Integer j : insertIndex) {
-        pd[j].add(-1);
+      for (Integer jj : insertIndex) {
+        pd[jj].add(-1);
+      }
+      insertIndex.clear();
+    } // end of sequence
+    return pd;
+  }
+
+  public ProjD1[] projectDB(List<Integer> freItem) {
+    Arrays.fill(this.sMax, -1);
+    ProjD1[] pd = new ProjD1[freItem.size()];
+    Set<Integer> list = new TreeSet<Integer>(freItem);
+    for (int i = 0; i < freItem.size(); ++i) {
+      this.sMax[freItem.get(i)] = i;
+      pd[i] = new ProjD1();
+      pd[i].appI(freItem.get(i));
+      pd[i].sItem = 0;
+    }
+
+    /**
+     * constructure no nonfreq
+     */
+    List<Integer> seq;
+    List<Integer> insertIndex = new ArrayList<Integer>();
+    int j;
+    for (int id = 0; id < oB.size(); ++id) {
+      seq = oB.get(id); 
+      for (int inSeq = 0; inSeq < seq.size() - 2; ++inSeq) {
+        if (seq.get(inSeq) != -1) {
+          j = this.sMax[seq.get(inSeq)];
+          if (j < 0) continue;
+          if (pd[j].maxID < id) {
+            insertIndex.add(j);
+            pd[j].maxID = id;
+            pd[j].addI(inSeq);
+          } else
+            pd[j].add(inSeq);
+        }
+      }
+      for (Integer jj : insertIndex) {
+        pd[jj].add(-1);
       }
       insertIndex.clear();
     } // end of sequence

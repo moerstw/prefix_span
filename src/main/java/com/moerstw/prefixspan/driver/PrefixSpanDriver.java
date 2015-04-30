@@ -43,7 +43,7 @@ public class PrefixSpanDriver {
       //pgd.addClass("wordcount", WordCount.class, 
       //             "A map/reduce program that counts the words in the input files.");
       pgd.addClass("prefixspan", PrefixSpan.class, 
-                   "A prefixspan implement for input and minsup.");
+                   "prefixspan filename minsup(count) numberI remove(1).");
 
       pgd.addClass("mypre", MyPre.class, 
                    "(4): file_name min_support(0~1) max_gap(-1) max_pattern_length(-1).");
